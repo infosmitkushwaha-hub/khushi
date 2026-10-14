@@ -14,8 +14,11 @@ Khushi is Sumit's AI job-search employee (Telegram + LinkedIn MCP + Claude, on R
   - `DRY_RUN=true` until Sumit says go.
 - **LinkedIn only:** never add email or any other outreach channel.
 - **Never retry an uncertain LinkedIn send** (`send_unconfirmed` / `retry_safe: false`): it can deliver twice.
-- **LinkedIn reader:** it's Sumit's fork, pinned by sha in the `Dockerfile` (`LINKEDIN_MCP_REF`). Fix bugs there
-  (`D:\linkdin mcp latest`), push, then bump the sha.
+- **LinkedIn reader:** Sumit's private fork, vendored in `vendor/linkedin-mcp-server/` (Railway can't clone a
+  private repo). Fix bugs in the fork (`D:\linkdin mcp latest`), commit, push, then refresh the snapshot:
+  `rm -rf vendor/linkedin-mcp-server/linkedin_mcp_server && (cd "D:/linkdin mcp latest" && git archive <sha>
+  pyproject.toml uv.lock README.md LICENSE NOTICE linkedin_mcp_server) | tar -x -C vendor/linkedin-mcp-server`
+  and update the sha in `VENDORED.md`.
 - Before committing: `ruff check .` and `pytest -q` must pass (CI runs both). One commit per coherent change,
   ending with a `Co-Authored-By` trailer.
 - Match the existing style: small modules, typed, comments only where they explain *why*.

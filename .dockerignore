@@ -9,3 +9,4 @@ credentials
 .env.*
 vendor/linkedin-posting-mcp/node_modules
 vendor/linkedin-posting-mcp/dist
+vendor/linkedin-mcp-server/.venv

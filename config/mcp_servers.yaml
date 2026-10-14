@@ -9,8 +9,9 @@
 
 servers:
   linkedin_reader:
-    # Sumit's fork of the browser-based LinkedIn MCP (fixes for connect notes + send_message), installed in the
-    # Docker image as `mcp-server-linkedin`. Logged in as Sumit through /linkedin_login (noVNC, on the server's IP).
+    # Sumit's fork of the browser-based LinkedIn MCP (fixes for connect notes + send_message), vendored in
+    # vendor/linkedin-mcp-server and installed in the Docker image as `mcp-server-linkedin`.
+    # Logged in as Sumit through /linkedin_login (noVNC, on the server's IP).
     command: mcp-server-linkedin
     args: []
     env:

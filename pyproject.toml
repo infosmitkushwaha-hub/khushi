@@ -29,6 +29,7 @@ include = ["app*"]
 [tool.ruff]
 line-length = 120
 target-version = "py312"
+extend-exclude = ["vendor"]  # vendored MCP servers keep their own lint rules
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]

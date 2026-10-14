@@ -1,14 +1,9 @@
 FROM python:3.12-slim
 
-# Sumit's LinkedIn MCP fork (connect-note + send_message fixes). Bump the sha to take newer fixes.
-ARG LINKEDIN_MCP_REF=592f63a2476aa9bcc9c24c513411b573c10c3a24
-
 ENV PYTHONUNBUFFERED=1 \
     DATA_DIR=/app/data \
     LINKEDIN_POSTING_MCP_PATH=/app/vendor/linkedin-posting-mcp \
     PLAYWRIGHT_BROWSERS_PATH=/opt/patchright \
-    UV_TOOL_DIR=/opt/uv-tools \
-    UV_TOOL_BIN_DIR=/usr/local/bin \
     DISPLAY=:99 \
     HEADLESS=false \
     LINKEDIN_MCP_CONTAINER=true
@@ -23,11 +18,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && pip install --no-cache-dir uv \
  && rm -rf /var/lib/apt/lists/*
 
-# LinkedIn reader MCP from the fork, with its browser pre-installed (it would otherwise download on first use)
-RUN uv tool install --python 3.12 \
-        "mcp-server-linkedin @ git+https://github.com/infosmitkushwaha-hub/sumit-linkdin-mcp-latest-@${LINKEDIN_MCP_REF}" \
- && "$UV_TOOL_DIR/mcp-server-linkedin/bin/patchright" install-deps chromium \
- && "$UV_TOOL_DIR/mcp-server-linkedin/bin/patchright" install chromium --no-shell \
+# LinkedIn reader MCP: Sumit's fork, vendored (see vendor/linkedin-mcp-server/VENDORED.md), installed with its
+# exact locked dependencies into its own venv, with its browser pre-installed (it would download on first use).
+COPY vendor/linkedin-mcp-server /opt/linkedin-mcp-server
+RUN cd /opt/linkedin-mcp-server \
+ && UV_PROJECT_ENVIRONMENT=/opt/linkedin-mcp-server/.venv uv sync --frozen --no-dev --python python3.12 \
+ && ln -s /opt/linkedin-mcp-server/.venv/bin/mcp-server-linkedin /usr/local/bin/mcp-server-linkedin \
+ && .venv/bin/patchright install-deps chromium \
+ && .venv/bin/patchright install chromium --no-shell \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
