@@ -1,0 +1,11 @@
+.venv
+data
+credentials
+.git
+.pytest_cache
+.ruff_cache
+*.egg-info
+.env
+.env.*
+vendor/linkedin-posting-mcp/node_modules
+vendor/linkedin-posting-mcp/dist

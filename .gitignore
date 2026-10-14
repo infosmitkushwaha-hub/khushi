@@ -1,0 +1,22 @@
+# Secrets: never commit
+.env
+.env.*
+!.env.example
+credentials/
+
+# Runtime data
+data/
+logs/
+*.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node (vendored posting MCP is built in Docker)
+node_modules/
+dist/

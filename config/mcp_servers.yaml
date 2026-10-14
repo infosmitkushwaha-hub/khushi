@@ -1,0 +1,61 @@
+# MCP servers Khushi uses as tools.
+# Python calls these tools directly; the LLM never gets direct access, so writes stay behind approval and caps.
+# ${VAR} is replaced from the environment / .env (${A|B} = first non-empty). Empty values are not passed on.
+#
+# allow: the only tools Khushi may call. deny_always: blocked for everyone. approval_only: callable only with an
+# approved Action (app/core/approvals.assert_publishable). daily_caps: calls per tool per IST day.
+# delay_seconds: random pause before each call. active_hours: IST window. session_alert: Telegram message when the
+# login is gone (LinkedIn is then paused for the day).
+
+servers:
+  linkedin_reader:
+    # Sumit's fork of the browser-based LinkedIn MCP (fixes for connect notes + send_message), installed in the
+    # Docker image as `mcp-server-linkedin`. Logged in as Sumit through /linkedin_login (noVNC, on the server's IP).
+    command: mcp-server-linkedin
+    args: []
+    env:
+      USER_DATA_DIR: "${LINKEDIN_PROFILE_DIR}"
+      PROXY_SERVER: "${PROXY_SERVER}"
+      PROXY_USERNAME: "${PROXY_USERNAME}"
+      PROXY_PASSWORD: "${PROXY_PASSWORD}"
+      LINKEDIN_MCP_CONTAINER: "${LINKEDIN_MCP_CONTAINER}"
+      UV_HTTP_TIMEOUT: "300"
+    deny_always: [get_conversation, close_session]   # get_conversation marks threads read behind Sumit's back
+    approval_only: [connect_with_person, send_message]
+    daily_caps:
+      search_posts: 20
+      search_jobs: 10
+      get_job_details: 20
+      search_people: 30
+      get_person_profile: 40
+      get_company_profile: 15
+      get_company_employees: 10
+      get_inbox: 12
+      connect_with_person: 10
+      send_message: 10
+    delay_seconds: [20, 60]
+    active_hours: [8, 21]
+    session_alert: "LinkedIn needs you to log in again (session expired or a security check). I've paused LinkedIn for today so your account stays safe. Send /linkedin_login when you can."
+    agents:
+      khushi:
+        allow: [search_posts, search_jobs, get_job_details, search_people, get_person_profile, get_company_profile,
+                get_company_employees, get_inbox, connect_with_person, send_message]
+
+  linkedin_poster:
+    # LinkedIn posting MCP (official API, OAuth), vendored and built in Docker. Khushi only uses it to comment.
+    command: node
+    args: ["${LINKEDIN_POSTING_MCP_PATH}/dist/index.js"]
+    env:
+      LINKEDIN_CLIENT_ID: "${LINKEDIN_CLIENT_ID}"
+      LINKEDIN_CLIENT_SECRET: "${LINKEDIN_CLIENT_SECRET}"
+      LINKEDIN_REDIRECT_URI: "${LINKEDIN_REDIRECT_URI}"
+      LINKEDIN_MCP_DATA_DIR: "${DATA_DIR}/linkedin-posting"
+    deny_always: [linkedin_create_post, linkedin_delete_post, linkedin_react_to_post, linkedin_create_event,
+                  linkedin_upload_image]
+    approval_only: [linkedin_create_comment]
+    daily_caps:
+      linkedin_create_comment: 10
+    delay_seconds: [120, 300]
+    agents:
+      khushi:
+        allow: [linkedin_create_comment, linkedin_get_auth_status, linkedin_auth_start, linkedin_auth_callback]

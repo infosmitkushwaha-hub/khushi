@@ -1,0 +1,39 @@
+[project]
+name = "khushi"
+version = "0.1.0"
+description = "Khushi: Sumit's AI job-search employee on Telegram (LinkedIn MCP + Claude, deployed on Railway)"
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.7",
+  "pydantic-settings>=2.3",
+  "sqlalchemy>=2.0",
+  "python-telegram-bot[job-queue]>=21.6",
+  "anthropic>=0.40",
+  "httpx>=0.27",
+  "mcp>=1.2",
+  "pyyaml>=6.0",
+  "tzdata>=2024.1",
+  "psycopg[binary]>=3.2",   # Postgres / Supabase (only used when DATABASE_URL is set)
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.6"]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

@@ -1,0 +1,11 @@
+# Railway: builds the Dockerfile and keeps one always-on worker (Telegram long polling + scheduler).
+# Attach a Volume at /app/data: LinkedIn login, database, logs. Keep 1 replica (two would fight over Telegram
+# polling and the LinkedIn browser profile).
+# For /linkedin_login: add a public domain with target port 6080 and put it in LOGIN_VIEWER_URL.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+restartPolicyType = "ALWAYS"
+numReplicas = 1
